@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+  Query,
+} from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
@@ -11,74 +22,106 @@ export class BlogController {
   @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createBlogDto: CreateBlogDto, @Req() req: any) {
-    const userId = req.user.id;
+    const userId = req.user?.userId;
     return this.blogService.create(createBlogDto, userId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  findAll() {
-    return this.blogService.findAll();
+  findAll(@Req() req: any) {
+    const userId = req.user?.userId;
+    const role = req.user?.role;
+    return this.blogService.findAll(userId, role);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.blogService.findOne(+id);
-  }
-
+  // blog search route
   @UseGuards(JwtAuthGuard)
   @Get('search')
-  search(@Param('query') query: string) {
+  search(@Query('query') query: string) {
+    console.log('Search query:', query);
     return this.blogService.searchByTitleOrUserName(query);
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  findOne(@Param('id') id: string, @Req() req: any) {
+    const userId = req.user?.userId;
+    const role = req.user?.role;
+    return this.blogService.findOne(+id, userId, role);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBlogDto: UpdateBlogDto, @Req() req: any) {
-    const userId = req.user.id;
-    return this.blogService.update(+id, updateBlogDto, userId);
+  update(
+    @Param('id') id: string,
+    @Body() updateBlogDto: UpdateBlogDto,
+    @Req() req: any,
+  ) {
+    const userId = req.user?.userId;
+    return this.blogService.update(+id, updateBlogDto, +userId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string, @Req() req: any) {
-    const userId = req.user.id;
+    const userId = req.user?.userId;
     return this.blogService.remove(+id, userId);
   }
 
+  // blog like related route
   @UseGuards(JwtAuthGuard)
   @Post('like/:id')
   like(@Param('id') id: string, @Req() req: any) {
-    const userId = req.user.id;
+    const userId = req.user?.userId;
     return this.blogService.likeBlog(+id, userId);
   }
 
+  // blog comment related routes
   @UseGuards(JwtAuthGuard)
   @Post('comment/:id')
-  comment(@Param('id') id: string, @Req() req: any, @Body('comment') comment: string) {
-    const userId = req.user.id;
+  comment(
+    @Param('id') id: string,
+    @Req() req: any,
+    @Body('comment') comment: string,
+  ) {
+    const userId = req.user?.userId;
     return this.blogService.commentBlog(+id, userId, comment);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('comments/:id')
+  @Get('comment/:id')
   getComments(@Param('id') id: string) {
     return this.blogService.getComments(+id);
-
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch('comment/:id')
-  editComment(@Param('id') id: string, @Req() req: any, @Body('comment') comment: string) {
-    const userId = req.user.id;
+  editComment(
+    @Param('id') id: string,
+    @Req() req: any,
+    @Body('comment') comment: string,
+  ) {
+    const userId = req.user?.userId;
     return this.blogService.editComment(+id, userId, comment);
   }
 
   @UseGuards(JwtAuthGuard)
+  @Delete('comment/:id')
+  deleteComment(@Param('id') id: string, @Req() req: any) {
+    const userId = req.user?.userId;
+    return this.blogService.deleteComment(+id, userId);
+  }
+
+  // blog rating related route
+
+  @UseGuards(JwtAuthGuard)
   @Post('rate/:id')
-  rate(@Param('id') id: string, @Req() req: any, @Body('rating') rating: number) {
-    const userId = req.user.id;
+  rate(
+    @Param('id') id: string,
+    @Req() req: any,
+    @Body('rating') rating: number,
+  ) {
+    const userId = req.user?.userId;
     return this.blogService.rateBlog(+id, userId, rating);
   }
-  }
+}
