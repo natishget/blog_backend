@@ -1,0 +1,28 @@
+# Node modules for  backend
+node_modules
+
+# Environment files
+.env
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build folders
+/dist
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Docker stuff
+*.env.local
+.env.docker
+.env.production
+
+# Editor folders
+.vscode
+.idea
+
