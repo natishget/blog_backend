@@ -38,10 +38,10 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get()
   findAll(@Req() req: any) {
-    // const role = req.user?.role;
-    // if (role !== 'admin') {
-    //   throw new ForbiddenException('Only admin can access all users');
-    // }
+    const role = req.user?.role;
+    if (role !== 'admin') {
+      throw new ForbiddenException('Only admin can access all users');
+    }
     return this.userService.findAll();
   }
 
