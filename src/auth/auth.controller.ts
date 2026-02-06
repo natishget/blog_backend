@@ -1,4 +1,13 @@
-import { Body, Controller, Post, Get, Req, Res, UseGuards, BadRequestException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Get,
+  Req,
+  Res,
+  UseGuards,
+  BadRequestException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -19,7 +28,10 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() dto: LoginUserDto, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() dto: LoginUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const { access_token, role, name } = await this.authService.loginUser(dto);
 
     if (!access_token) {
@@ -33,7 +45,7 @@ export class AuthController {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    return { role };
+    return { name, role };
   }
 
   @UseGuards(JwtAuthGuard)
