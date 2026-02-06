@@ -157,13 +157,18 @@ export class BlogService {
     });
   }
 
-  async update(id: number, updateBlogDto: UpdateBlogDto, userId: number) {
+  async update(
+    id: number,
+    updateBlogDto: UpdateBlogDto,
+    userId: number,
+    role: string,
+  ) {
     const data = await this.prisma.blogs.findUnique({ where: { id } });
     if (!data) {
       throw new NotFoundException('Blog not Found');
     }
 
-    if (data.userId !== userId) {
+    if (data.userId !== userId && role !== 'admin') {
       throw new BadRequestException('You are not the owner of the blog');
     }
 
@@ -173,13 +178,13 @@ export class BlogService {
     });
   }
 
-  async remove(id: number, userId: number) {
+  async remove(id: number, userId: number, role: string) {
     const data = await this.prisma.blogs.findUnique({ where: { id } });
     if (!data) {
       throw new NotFoundException('Blog not Found');
     }
 
-    if (data.userId !== userId) {
+    if (data.userId !== userId && role !== 'admin') {
       throw new BadRequestException('You are not the owner of the blog');
     }
     return await this.prisma.blogs.delete({ where: { id } });
@@ -189,6 +194,10 @@ export class BlogService {
     const data = await this.prisma.blogs.findUnique({ where: { id } });
     if (!data) {
       throw new NotFoundException('Blog not Found');
+    }
+
+    if (data.userId === userId) {
+      throw new BadRequestException('You cannot like your own blog');
     }
 
     const existingLike = await this.prisma.likes.findUnique({
@@ -225,6 +234,10 @@ export class BlogService {
       throw new NotFoundException('Blog not Found');
     }
 
+    if (data.userId === userId) {
+      throw new BadRequestException('You cannot comment on your own blog');
+    }
+
     return await this.prisma.comments.create({
       data: {
         userId,
@@ -255,14 +268,14 @@ export class BlogService {
     });
   }
 
-  async editComment(id: number, userId: number, comment: string) {
+  async editComment(id: number, userId: number, comment: string, role: string) {
     const data = await this.prisma.comments.findUnique({ where: { id } });
 
     if (!data) {
       throw new NotFoundException('Comment not Found');
     }
 
-    if (data.userId !== userId) {
+    if (data.userId !== userId && role !== 'admin') {
       throw new BadRequestException('You are not the owner of the comment');
     }
 
@@ -274,30 +287,14 @@ export class BlogService {
     });
   }
 
-  async deleteBlog(id: number, userId: number) {
+  async deleteComment(id: number, userId: number, role: string) {
     const data = await this.prisma.comments.findUnique({ where: { id } });
 
     if (!data) {
       throw new NotFoundException('Comment not Found');
     }
 
-    if (data.userId !== userId) {
-      throw new BadRequestException('You are not the owner of the comment');
-    }
-
-    return await this.prisma.comments.delete({
-      where: { id },
-    });
-  }
-
-  async deleteComment(id: number, userId: number) {
-    const data = await this.prisma.comments.findUnique({ where: { id } });
-
-    if (!data) {
-      throw new NotFoundException('Comment not Found');
-    }
-
-    if (data.userId !== userId) {
+    if (data.userId !== userId && role !== 'admin') {
       throw new BadRequestException('You are not the owner of the comment');
     }
 
@@ -313,6 +310,10 @@ export class BlogService {
 
     if (!data) {
       throw new NotFoundException('Blog not Found');
+    }
+
+    if (data.userId === userId) {
+      throw new BadRequestException('You cannot rate your own blog');
     }
 
     const existingRating = await this.prisma.blogRatings.findUnique({

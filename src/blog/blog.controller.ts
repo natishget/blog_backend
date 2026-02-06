@@ -58,14 +58,16 @@ export class BlogController {
     @Req() req: any,
   ) {
     const userId = req.user?.userId;
-    return this.blogService.update(+id, updateBlogDto, +userId);
+    const role = req.user?.role;
+    return this.blogService.update(+id, updateBlogDto, +userId, role);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string, @Req() req: any) {
     const userId = req.user?.userId;
-    return this.blogService.remove(+id, userId);
+    const role = req.user?.role;
+    return this.blogService.remove(+id, userId, role);
   }
 
   // blog like related route
@@ -102,14 +104,16 @@ export class BlogController {
     @Body('comment') comment: string,
   ) {
     const userId = req.user?.userId;
-    return this.blogService.editComment(+id, userId, comment);
+    const role = req.user?.role;
+    return this.blogService.editComment(+id, userId, comment, role);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('comment/:id')
   deleteComment(@Param('id') id: string, @Req() req: any) {
     const userId = req.user?.userId;
-    return this.blogService.deleteComment(+id, userId);
+    const role = req.user?.role;
+    return this.blogService.deleteComment(+id, userId, role);
   }
 
   // blog rating related route
