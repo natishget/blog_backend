@@ -12,6 +12,6 @@
       "baseUrl": "./",
       "incremental": true,
       "strict": true,
-      "types": ["node"]
+      "types": ["node", "jest"]
     }
   }

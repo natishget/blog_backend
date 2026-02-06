@@ -21,7 +21,7 @@ export class CreateUserDto {
   role!: roleTypes;
 
   @IsString()
-  bio?: string;
+  bio!: string;
 
   @IsString()
   @IsNotEmpty()

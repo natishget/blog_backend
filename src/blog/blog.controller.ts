@@ -9,6 +9,7 @@ import {
   UseGuards,
   Req,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
@@ -29,7 +30,7 @@ export class BlogController {
   @UseGuards(JwtAuthGuard)
   @Get()
   findAll(@Req() req: any) {
-    const userId = req.user?.userId;
+    const userId = req.user?.userId ?? req.user?.id;
     const role = req.user?.role;
     return this.blogService.findAll(userId, role);
   }
@@ -38,82 +39,81 @@ export class BlogController {
   @UseGuards(JwtAuthGuard)
   @Get('search')
   search(@Query('query') query: string) {
-    console.log('Search query:', query);
     return this.blogService.searchByTitleOrUserName(query);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string, @Req() req: any) {
-    const userId = req.user?.userId;
+  findOne(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    const userId = req.user?.userId ?? req.user?.id;
     const role = req.user?.role;
-    return this.blogService.findOne(+id, userId, role);
+    return this.blogService.findOne(id, userId, role);
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateBlogDto: UpdateBlogDto,
     @Req() req: any,
   ) {
-    const userId = req.user?.userId;
+    const userId = req.user?.userId ?? req.user?.id;
     const role = req.user?.role;
-    return this.blogService.update(+id, updateBlogDto, +userId, role);
+    return this.blogService.update(id, updateBlogDto, userId, role);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string, @Req() req: any) {
-    const userId = req.user?.userId;
+  remove(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    const userId = req.user?.userId ?? req.user?.id;
     const role = req.user?.role;
-    return this.blogService.remove(+id, userId, role);
+    return this.blogService.remove(id, userId, role);
   }
 
   // blog like related route
   @UseGuards(JwtAuthGuard)
   @Post('like/:id')
-  like(@Param('id') id: string, @Req() req: any) {
-    const userId = req.user?.userId;
-    return this.blogService.likeBlog(+id, userId);
+  like(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    const userId = req.user?.userId ?? req.user?.id;
+    return this.blogService.likeBlog(id, userId);
   }
 
   // blog comment related routes
   @UseGuards(JwtAuthGuard)
   @Post('comment/:id')
   comment(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Req() req: any,
     @Body('comment') comment: string,
   ) {
-    const userId = req.user?.userId;
-    return this.blogService.commentBlog(+id, userId, comment);
+    const userId = req.user?.userId ?? req.user?.id;
+    return this.blogService.commentBlog(id, userId, comment);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('comment/:id')
-  getComments(@Param('id') id: string) {
-    return this.blogService.getComments(+id);
+  getComments(@Param('id', ParseIntPipe) id: number) {
+    return this.blogService.getComments(id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch('comment/:id')
   editComment(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Req() req: any,
     @Body('comment') comment: string,
   ) {
-    const userId = req.user?.userId;
+    const userId = req.user?.userId ?? req.user?.id;
     const role = req.user?.role;
-    return this.blogService.editComment(+id, userId, comment, role);
+    return this.blogService.editComment(id, userId, comment, role);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('comment/:id')
-  deleteComment(@Param('id') id: string, @Req() req: any) {
-    const userId = req.user?.userId;
+  deleteComment(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    const userId = req.user?.userId ?? req.user?.id;
     const role = req.user?.role;
-    return this.blogService.deleteComment(+id, userId, role);
+    return this.blogService.deleteComment(id, userId, role);
   }
 
   // blog rating related route
@@ -121,11 +121,11 @@ export class BlogController {
   @UseGuards(JwtAuthGuard)
   @Post('rate/:id')
   rate(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Req() req: any,
     @Body('rating') rating: number,
   ) {
-    const userId = req.user?.userId;
-    return this.blogService.rateBlog(+id, userId, rating);
+    const userId = req.user?.userId ?? req.user?.id;
+    return this.blogService.rateBlog(id, userId, rating);
   }
 }
